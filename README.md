@@ -26,28 +26,6 @@ We use the folloing implemetations to respectively pretrain classifiers on Model
 * [PointNet/PointNet++](https://github.com/yanx27/Pointnet_Pointnet2_pytorch)
 After pre-training, you should move the pre-trained models into corresponding folders at "./pretrained_models/"
 
-# ART-Point
-A minimal ART-Point implementation of PyTorch 1.6 on CUDA 11.2, with support for training and evaluation on rotated point clouds.
-
-## Installation
-#### Install Requirements
-    $ cd ART-Point/
-    $ conda env create -f environment.yaml
-
-#### Download ModelNet40 and ShapeNet Parts
-We use two datasets:
-* [ModeNet40](https://shapenet.cs.stanford.edu/media/modelnet40_normal_resampled.zip)
-* [ShapeNet16](https://shapenet.cs.stanford.edu/media/shapenetcore_partanno_segmentation_benchmark_v0_normal.zip)
-
-After downloading, you should convert the .txt dataset into numpy file (.npy). Then, you can use our code for training and evaluation.
-You can use the codes in "https://github.com/yanx27/Pointnet_Pointnet2_pytorch/tree/master/data_utils" for pre-pocessing.
-
-#### Pretraining Models
-We use the folloing implemetations to respectively pretrain classifiers on ModelNet40 and ShapeNet16.
-* [DGCNN](https://github.com/WangYueFt/dgcnn/tree/master/pytorch)
-* [PointNet/PointNet++](https://github.com/yanx27/Pointnet_Pointnet2_pytorch)
-After pre-training, you should move the pre-trained models into corresponding folders at "./pretrained_models/"
-
 ## Train and Evaluate
 
 #### ModelNet40
@@ -69,7 +47,6 @@ $ python train_classification_onestep_s16.py --angles 1 --batch_size 17 --inner_
 
 ```
 
-Noted that the code may be not stable, if you can help please contact me.
-
-
+## Contact 
+You are welcome to send pull requests or share some ideas with us. Contact information: Robin Wang (robin_wang@pku.edu.cn).
 
