@@ -34,7 +34,6 @@ def parse_args():
     parser.add_argument('--use_cpu', action='store_true', default=False, help='use cpu mode')
     parser.add_argument('--gpu', type=str, default='0', help='specify gpu device')
     parser.add_argument('--batch_size', type=int, default=24, help='batch size in training')
-    parser.add_argument('--model', default='pointnet_cls', help='model name [default: pointnet_cls]')
     parser.add_argument('--num_category', default=40, type=int, choices=[10, 40],  help='training on ModelNet10/40')
     parser.add_argument('--epoch', default=10, type=int, help='number of epoch in training')
     parser.add_argument('--inner_epoch', default=200, type=int, help='number of epoch in inner training')
@@ -261,7 +260,7 @@ def main(args):
     logger = logging.getLogger("Model")
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler = logging.FileHandler('%s/%s.txt' % (log_dir, args.model))
+    file_handler = logging.FileHandler('%s/pointnet_cls.txt' % (log_dir))
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
@@ -295,8 +294,7 @@ def main(args):
 
     '''MODEL LOADING'''
     num_class = args.num_category
-    model = importlib.import_module(args.model)
-    # shutil.copy('./models/%s.py' % args.model, str(exp_dir))
+    model = importlib.import_module('pointnet_cls')
     # shutil.copy('../methods/cwfgsm.py', str(exp_dir))
     shutil.copy('train_classification_dynamic.py', str(exp_dir))
     shutil.copy('provider.py', str(exp_dir))
