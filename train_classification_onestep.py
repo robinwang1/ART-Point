@@ -37,7 +37,6 @@ def parse_args():
     parser.add_argument('--use_cpu', action='store_true', default=False, help='use cpu mode')
     parser.add_argument('--gpu', type=str, default='0', help='specify gpu device')
     parser.add_argument('--batch_size', type=int, default=24, help='batch size in training')
-    parser.add_argument('--model', default='pointnet_cls', help='model name [default: pointnet_cls]')
     parser.add_argument('--num_category', default=40, type=int, choices=[10, 40],  help='training on ModelNet10/40')
     parser.add_argument('--epoch', default=10, type=int, help='number of epoch in training')
     parser.add_argument('--inner_epoch', default=200, type=int, help='number of epoch in inner training')
@@ -268,7 +267,7 @@ def main(args):
     logger = logging.getLogger("Model")
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler = logging.FileHandler('%s/%s.txt' % (log_dir, args.model))
+    file_handler = logging.FileHandler('%s/pointnet_cls.txt' % (log_dir))
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
@@ -301,47 +300,21 @@ def main(args):
     testDataLoader = torch.utils.data.DataLoader(test_dataset, batch_size=17, shuffle=False, num_workers=16)
 
     '''TRAIN MODEL LOADING'''
-    if args.model == 'pointnet_cls':
-        num_class = args.num_category
-        model = importlib.import_module(args.model)
-        shutil.copy('train_classification_onestep.py', str(exp_dir))
-        shutil.copy('provider.py', str(exp_dir))
-        print("Let's use", torch.cuda.device_count(), "GPUs!")
-        classifier_train = model.get_model(num_class, normal_channel=args.use_normals)
-        print(str(classifier_train))
-        classifier_train = classifier_train.cuda()
-        criterion = model.get_loss()
-        criterion = criterion.cuda()
-        pretrained_dir = Path('./pretrained_models/modelnet40/pn1.pth')
-        checkpoint_pre = torch.load(pretrained_dir)
-        classifier_train.load_state_dict(checkpoint_pre['model_state_dict'])
-        log_string('Use Pretrained trainModel pn1')
-    elif args.model == 'pointnet2_cls_ssg':
-        num_class = args.num_category
-        model = importlib.import_module(args.model)
-        shutil.copy('train_classification_onestep.py', str(exp_dir))
-        shutil.copy('provider.py', str(exp_dir))
-        print("Let's use", torch.cuda.device_count(), "GPUs!")
-        classifier_train = model.get_model(num_class, normal_channel=args.use_normals)
-        classifier_train = classifier_train.cuda()
-        criterion = model.get_loss()
-        criterion = criterion.cuda()
-        pretrained_dir = Path('./pretrained_models/modelnet40/pn2.pth')
-        checkpoint_pre = torch.load(pretrained_dir)
-        classifier_train.load_state_dict(checkpoint_pre['model_state_dict'])
-        log_string('Use Pretrained trainModel pn2')
-    else:
-        num_class = args.num_category
-        shutil.copy('train_classification_onestep.py', str(exp_dir))
-        shutil.copy('provider.py', str(exp_dir))
-        print("Let's use", torch.cuda.device_count(), "GPUs!")
-        classifier_train = DGCNN(num_class)
-        classifier_train = classifier_train.cuda()
-        classifier_train = nn.DataParallel(classifier_train)
-        # criterion = cal_loss()
-        pretrained_dir = Path('./pretrained_models/modelnet40/dgcnn.t7')
-        classifier_train.load_state_dict(torch.load(pretrained_dir))
-        log_string('Use Pretrained trainModel dgcnn')
+    num_class = args.num_category
+    model = importlib.import_module('pointnet_cls')
+    shutil.copy('train_classification_onestep.py', str(exp_dir))
+    shutil.copy('provider.py', str(exp_dir))
+    print("Let's use", torch.cuda.device_count(), "GPUs!")
+    classifier_train = model.get_model(num_class, normal_channel=args.use_normals)
+    print(str(classifier_train))
+    classifier_train = classifier_train.cuda()
+    criterion = model.get_loss()
+    criterion = criterion.cuda()
+    pretrained_dir = Path('./pretrained_models/modelnet40/pn1.pth')
+    checkpoint_pre = torch.load(pretrained_dir)
+    classifier_train.load_state_dict(checkpoint_pre['model_state_dict'])
+    log_string('Use Pretrained trainModel pn1')
+
 
     '''EVAL MODEL LOADING'''
     model_eval1 = importlib.import_module('pointnet_cls')
@@ -390,10 +363,7 @@ def main(args):
     log_string('eval_pn1:{}'.format(classifier_eval1.state_dict()['fc1.weight']))
     log_string('eval_pn2:{}'.format(classifier_eval2.state_dict()['fc1.weight']))
     log_string('eval_dgcnn:{}'.format(classifier_eval3.state_dict()['module.linear1.weight']))
-    if args.model == 'dgcnn':
-        log_string('train:{}'.format(classifier_train.state_dict()['module.linear1.weight']))
-    else:
-        log_string('train:{}'.format(classifier_train.state_dict()['fc1.weight']))
+    log_string('train:{}'.format(classifier_train.state_dict()['fc1.weight']))
 
 
     classifier_train = classifier_train.train()
@@ -453,18 +423,15 @@ def main(args):
 
     if args.angles:
         print('rotate data with %.2f' % args.angles)
-    if args.model in ['pointnet2_cls_ssg', 'pointnet_cls']:
-        optimizer = torch.optim.Adam(
-            classifier_train.parameters(),
-            lr=args.learning_rate,
-            betas=(0.9, 0.999),
-            eps=1e-08,
-            weight_decay=args.decay_rate
-        )
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.7)
-    else:
-        optimizer = torch.optim.SGD(classifier_train.parameters(), lr=0.1, momentum=0.9, weight_decay=1e-4)
-        scheduler = CosineAnnealingLR(optimizer, args.inner_epoch, eta_min=0.001)
+
+    optimizer = torch.optim.Adam(
+        classifier_train.parameters(),
+        lr=args.learning_rate,
+        betas=(0.9, 0.999),
+        eps=1e-08,
+        weight_decay=args.decay_rate
+    )
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.7)
 
     log_string('begin optim: {}'.format(optimizer.param_groups[0]['lr']))
     # min steps
@@ -492,10 +459,8 @@ def main(args):
                 pred, trans_feat = classifier_train(points_adv.transpose(2, 1))
             # log_string('cloud:{}'.format(points_adv))
             # log_string('target:{}'.format(target_adv))
-            if args.model == 'dgcnn':
-                loss = cal_loss(pred, target_adv.long())
-            else:
-                loss = criterion(pred, target_adv.long(), trans_feat)
+            #
+            loss = criterion(pred, target_adv.long(), trans_feat)
             # log_string('loss:{}'.format(loss))
             pred_choice = pred.data.max(1)[1]
             correct = pred_choice.eq(target_adv.long().data).cpu().sum()
