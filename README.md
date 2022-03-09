@@ -31,7 +31,7 @@ After pre-training, you should move the pre-trained models into corresponding fo
 #### ModelNet40
 To train and evaluate ART-Point with one-step optimization on ModelNet40 using PointNet backends run: 
 ```
-$ python train_classification_onestep.py --angles 1 --batch_size 17 --inner_epoch 200 --iters 10 --log_dir pn1_onestep --rp --model pointnet_cls
+$ python train_classification_onestep.py --angles 1 --batch_size 17 --inner_epoch 200 --iters 10 --log_dir pn1_onestep --rp
 ```
 
 To train and evaluate ART-Point with iterative optimization on ModelNet40 using PointNet backend run: 
@@ -43,8 +43,7 @@ $ python train_classification_dynamic.py --angles 1 --batch_size 17 --epoch 50 -
 
 To train and evaluate ART-Point with one-step optimization on ShapeNet16 using PointNet backends run: 
 ```
-$ python train_classification_onestep_s16.py --angles 1 --batch_size 17 --inner_epoch 200 --iters 10 --log_dir pn1_onestep_s16 --rp --model pointnet_cls
-
+$ python train_classification_onestep_s16.py --angles 1 --batch_size 17 --inner_epoch 200 --iters 10 --log_dir pn1_onestep_s16 --rp
 ```
 
 ## Contact 
