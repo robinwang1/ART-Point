@@ -24,6 +24,7 @@ You can use the codes in "https://github.com/yanx27/Pointnet_Pointnet2_pytorch/t
 We use the folloing implemetations to respectively pretrain classifiers on ModelNet40 and ShapeNet16.
 * [DGCNN](https://github.com/WangYueFt/dgcnn/tree/master/pytorch)
 * [PointNet/PointNet++](https://github.com/yanx27/Pointnet_Pointnet2_pytorch)
+
 After pre-training, you should move the pre-trained models into corresponding folders at "./pretrained_models/"
 
 ## Train and Evaluate
