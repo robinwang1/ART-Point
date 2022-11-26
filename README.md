@@ -5,7 +5,6 @@
 ## Introduction
 PyTorch implementation for the paper [ART-Point: Improving Rotation Robustness of Point Cloud Classifiers via Adversarial Rotation (CVPR 2022)](http://arxiv.org/abs/2203.03888).
 
-Repository still under construction/refactoring. 
 
 ## Installation
 #### Install Requirements
